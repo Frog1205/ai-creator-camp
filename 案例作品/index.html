@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>案例作品集 | AI创造营</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#0a0f1e 0%,#16213e 100%);
+  font-family:"Microsoft YaHei",system-ui,sans-serif;color:#eee;
+  padding:40px 20px;
+}
+.container{max-width:960px;margin:0 auto}
+.back{
+  display:inline-block;color:#ffd700;text-decoration:none;
+  font-size:14px;margin-bottom:24px;
+}
+h1{
+  font-size:clamp(28px,5vw,42px);font-weight:900;margin-bottom:8px;
+  background:linear-gradient(135deg,#ffd700,#ff6b35);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.subtitle{color:#9aa0b4;letter-spacing:2px;margin-bottom:36px}
+.cases{display:flex;flex-direction:column;gap:20px}
+.case{
+  display:grid;grid-template-columns:100px 1fr auto;gap:20px;align-items:center;
+  padding:24px 28px;border-radius:16px;text-decoration:none;color:inherit;
+  background:linear-gradient(135deg,rgba(20,26,46,.9),rgba(15,52,96,.4));
+  border:1px solid rgba(255,255,255,.08);
+  transition:all .3s;
+}
+.case:hover{transform:translateY(-3px);border-color:rgba(255,215,0,.3)}
+.badge{
+  width:80px;height:80px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;font-size:40px;
+}
+.case-a .badge{background:linear-gradient(135deg,#ff9a56,#e94560)}
+.case-b .badge{background:linear-gradient(135deg,#667eea,#764ba2)}
+.case-c .badge{background:linear-gradient(135deg,#daa520,#b8860b)}
+h3{font-size:20px;font-weight:900;margin-bottom:6px}
+.desc{color:#9aa0b4;font-size:14px;line-height:1.6}
+.cta{padding:12px 24px;border-radius:10px;color:#fff;font-weight:700;white-space:nowrap}
+.case-a .cta{background:linear-gradient(135deg,#ff9a56,#e94560)}
+.case-b .cta{background:linear-gradient(135deg,#667eea,#764ba2)}
+.case-c .cta{background:linear-gradient(135deg,#daa520,#b8860b);color:#1a0a05}
+@media(max-width:600px){
+  .case{grid-template-columns:1fr;text-align:center}
+  .badge{margin:0 auto}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back" href="../index.html">← 返回创造营首页</a>
+  <h1>🎮 示范案例作品集</h1>
+  <p class="subtitle">三个赛道的标杆案例 · 学生学习样板 · 老师教学素材</p>
+
+  <div class="cases">
+    <a class="case case-a" href="案例A-记忆翻翻乐.html">
+      <div class="badge">🧠</div>
+      <div>
+        <h3>案例A · 记忆翻翻乐</h3>
+        <p class="desc">4×4翻牌配对 · 休闲解谜赛道入门标杆</p>
+      </div>
+      <div class="cta">开始玩 →</div>
+    </a>
+    <a class="case case-b" href="案例B-星际接接乐.html">
+      <div class="badge">🚀</div>
+      <div>
+        <h3>案例B · 星际接接乐</h3>
+        <p class="desc">Canvas动作游戏 · 动作冒险赛道范式</p>
+      </div>
+      <div class="cta">开始玩 →</div>
+    </a>
+    <a class="case case-c" href="案例C-成语接龙王.html">
+      <div class="badge">📜</div>
+      <div>
+        <h3>案例C · 成语接龙王</h3>
+        <p class="desc">学科+游戏融合 · 知识策略赛道示范</p>
+      </div>
+      <div class="cta">开始玩 →</div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

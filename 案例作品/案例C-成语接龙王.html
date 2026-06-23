@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>案例C · 成语接龙王 | AI创造营</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#3a1f00 0%,#1a0e00 100%);
+  font-family:"Microsoft YaHei","KaiTi",serif;color:#fff;
+  display:flex;flex-direction:column;align-items:center;padding:20px;
+}
+h1{
+  font-size:clamp(28px,5vw,42px);font-weight:900;margin-bottom:4px;
+  background:linear-gradient(135deg,#daa520,#ff6b35);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.subtitle{color:#a08060;font-size:13px;letter-spacing:3px;margin-bottom:18px}
+.scroll{
+  background:linear-gradient(135deg,#f5e6c8,#e8d5a3);
+  color:#3a1f00;border-radius:8px;padding:20px;
+  max-width:560px;width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 0 20px rgba(184,134,11,.15);
+  border:2px solid #b8860b;
+}
+.hud{display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px}
+.hud span{color:#8b4513;font-weight:700}
+.hud b{color:#c0392b;font-size:18px;font-weight:900}
+.chain{
+  background:rgba(255,255,255,.5);border:1px dashed #b8860b;
+  border-radius:8px;padding:12px;min-height:60px;
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+}
+.idiom-tag{
+  background:linear-gradient(135deg,#b8860b,#daa520);color:#fff;
+  padding:6px 14px;border-radius:6px;font-weight:700;font-size:15px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.current{
+  margin:16px 0 8px;padding:14px;text-align:center;
+  background:rgba(184,134,11,.1);border-radius:8px;
+}
+.current-label{font-size:13px;color:#8b4513;margin-bottom:6px}
+.current-char{
+  display:inline-block;font-size:48px;font-weight:900;color:#c0392b;
+  font-family:"KaiTi","STKaiti",serif;
+  text-shadow:2px 2px 4px rgba(0,0,0,.2);
+}
+.input-row{display:flex;gap:8px;margin-top:10px}
+input{
+  flex:1;padding:12px 16px;font-size:18px;
+  border:2px solid #b8860b;border-radius:8px;
+  background:#fff;color:#3a1f00;font-family:inherit;
+  outline:none;
+}
+input:focus{border-color:#c0392b}
+button{
+  padding:12px 24px;border:none;border-radius:8px;cursor:pointer;
+  font-size:15px;font-weight:900;color:#fff;
+  background:linear-gradient(135deg,#c0392b,#e74c3c);
+  font-family:inherit;
+}
+button:hover{filter:brightness(1.1)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.msg{
+  margin-top:10px;padding:10px;border-radius:6px;font-size:14px;text-align:center;
+  min-height:40px;
+}
+.msg.ok{background:rgba(46,204,113,.15);color:#27ae60;border:1px solid #27ae60}
+.msg.err{background:rgba(231,76,60,.15);color:#c0392b;border:1px solid #c0392b}
+.msg.tip{background:rgba(241,196,15,.15);color:#b8860b;border:1px solid #daa520}
+.controls{margin-top:14px;display:flex;gap:10px;justify-content:center}
+.controls button{background:linear-gradient(135deg,#8b4513,#a0522d)}
+.footer{margin-top:20px;font-size:12px;color:#6b4500;text-align:center;letter-spacing:1px}
+.footer a{color:#daa520;text-decoration:none}
+.combo{display:inline-block;color:#c0392b;font-weight:900;margin-left:8px}
+</style>
+</head>
+<body>
+
+<h1>📜 成语接龙王</h1>
+<p class="subtitle">AI创造营 · 案例C · 知识策略赛道</p>
+
+<div class="scroll">
+  <div class="hud">
+    <div><span>积分</span> <b id="score">0</b></div>
+    <div><span>连击</span> <b id="combo">×1</b></div>
+    <div><span>剩余时间</span> <b id="time">30</b>s</div>
+  </div>
+
+  <div class="current">
+    <div class="current-label">下一个成语要以这个字开头</div>
+    <div class="current-char" id="nextChar">—</div>
+  </div>
+
+  <div class="chain" id="chain">
+    <span style="color:#8b4513;font-size:14px">已接成语会显示在这里...</span>
+  </div>
+
+  <div class="input-row">
+    <input id="input" placeholder="输入一个成语回车" autocomplete="off">
+    <button id="submit" onclick="submit()">接龙</button>
+  </div>
+
+  <div class="msg tip" id="msg">点击"开始游戏"，30秒内能接多少个？</div>
+
+  <div class="controls">
+    <button onclick="start()">▶ 开始 / 重玩</button>
+    <button onclick="hint()">💡 看下提示</button>
+  </div>
+</div>
+
+<div class="footer">
+  AI创造营案例 · 提示词参考："做一个成语接龙网页游戏，30秒倒计时，连击加分，本地词库"<br>
+  <a href="index.html">← 返回案例列表</a>
+</div>
+
+<script>
+// 简化版词库（实际项目可让AI生成几百条 或调用接口）
+const IDIOMS={
+  '一':['一鸣惊人','一帆风顺','一心一意','一举两得','一目了然','一鼓作气','一丝不苟','一见钟情'],
+  '人':['人山人海','人才辈出','人云亦云','人定胜天','人面桃花'],
+  '海':['海阔天空','海纳百川','海枯石烂','海底捞月'],
+  '天':['天下无双','天衣无缝','天经地义','天罗地网','天涯海角','天高地厚'],
+  '马':['马到成功','马不停蹄','马革裹尸','马首是瞻'],
+  '功':['功成名就','功不可没','功亏一篑','功德圆满'],
+  '心':['心想事成','心花怒放','心安理得','心如止水','心猿意马'],
+  '成':['成竹在胸','成败得失','成千上万','成家立业'],
+  '风':['风调雨顺','风和日丽','风雨同舟','风花雪月','风驰电掣'],
+  '水':['水到渠成','水落石出','水深火热','水滴石穿','水乳交融'],
+  '山':['山高水长','山清水秀','山穷水尽','山盟海誓'],
+  '光':['光明正大','光阴似箭','光彩照人','光怪陆离'],
+  '火':['火树银花','火上浇油','火眼金睛','火中取栗'],
+  '空':['空穴来风','空前绝后','空中楼阁'],
+  '月':['月明星稀','月下老人','月白风清'],
+  '花':['花团锦簇','花好月圆','花言巧语','花前月下'],
+  '日':['日新月异','日积月累','日理万机','日月如梭'],
+  '星':['星罗棋布','星光熠熠','星火燎原'],
+  '电':['电闪雷鸣','电光石火'],
+  '雷':['雷厉风行','雷霆万钧','雷打不动'],
+  '动':['动人心弦','动如脱兔','动静自如'],
+  '兔':['兔死狐悲','兔起鹘落'],
+  '悲':['悲喜交加','悲天悯人'],
+  '门':['门庭若市','门当户对','门可罗雀'],
+  '雀':['雀跃欢呼','雀屏中选']
+};
+const HOMOPHONE={
+  '一':['壹','衣','医','依'],'人':['仁','刃','任'],'天':['田','甜'],
+  '马':['玛','码'],'功':['工','公','攻','弓'],'心':['新','辛','薪'],
+  '风':['丰','封','峰','锋'],'水':['谁','睡'],'山':['闪','善','扇']
+};
+
+let score=0,combo=1,seconds=30,timer=null,nextChar='',used=new Set(),running=false;
+
+function start(){
+  score=0;combo=1;seconds=30;used.clear();running=true;
+  nextChar=pickStart();
+  document.getElementById('chain').innerHTML='<span style="color:#8b4513;font-size:14px">已接成语...</span>';
+  update();
+  setMsg('开始接龙！输入以"'+nextChar+'"开头的成语','tip');
+  clearInterval(timer);
+  timer=setInterval(tick,1000);
+  document.getElementById('input').focus();
+}
+
+function pickStart(){
+  const keys=Object.keys(IDIOMS);
+  return keys[Math.floor(Math.random()*keys.length)];
+}
+
+function tick(){
+  seconds--;
+  if(seconds<=0){
+    clearInterval(timer);running=false;
+    setMsg('⏰ 时间到！最终积分：'+score+'，共接'+used.size+'个成语','tip');
+  }
+  update();
+}
+
+function update(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('combo').textContent='×'+combo;
+  document.getElementById('time').textContent=seconds;
+  document.getElementById('nextChar').textContent=nextChar||'—';
+}
+
+function submit(){
+  if(!running){setMsg('请先点"开始游戏"','err');return}
+  const inp=document.getElementById('input');
+  const v=inp.value.trim();
+  if(!v){return}
+  if(v.length!==4){setMsg('请输入4字成语','err');combo=1;update();return}
+  if(used.has(v)){setMsg('这个成语已经用过啦','err');combo=1;update();return}
+  // 检查首字
+  const first=v[0];
+  const candidates=[nextChar,...(HOMOPHONE[nextChar]||[])];
+  if(!candidates.includes(first)){
+    setMsg('需要以"'+nextChar+'"开头（同音字也可以）','err');combo=1;update();return;
+  }
+  // 检查词库
+  const lib=IDIOMS[nextChar]||[];
+  const lib2=Object.values(IDIOMS).flat();
+  if(!lib2.includes(v)){
+    setMsg('词库里没找到这个成语，但你的尝试很棒！','tip');
+    return;
+  }
+  // 成功
+  used.add(v);
+  const gain=10*combo;
+  score+=gain;
+  setMsg('✅ +'+gain+' 分'+(combo>1?'（连击 ×'+combo+'）':''),'ok');
+  combo++;
+  // 接龙到末尾字
+  nextChar=v[3];
+  // 给一些时间奖励
+  if(combo%3===0){seconds+=3;setMsg('🔥 连击奖励 +3秒！','ok')}
+  // 加到链上
+  const tag=document.createElement('span');
+  tag.className='idiom-tag';tag.textContent=v;
+  const chain=document.getElementById('chain');
+  if(chain.querySelector('span[style]'))chain.innerHTML='';
+  chain.appendChild(tag);
+  inp.value='';update();
+}
+
+function hint(){
+  if(!running){setMsg('开始游戏后才能用提示哦','err');return}
+  const list=IDIOMS[nextChar];
+  if(list&&list.length){
+    const pick=list.find(i=>!used.has(i));
+    if(pick){setMsg('💡 提示：'+pick.slice(0,2)+'??','tip');return}
+  }
+  setMsg('💡 提示：试试同音字开头的成语','tip');
+}
+
+function setMsg(text,type){
+  const m=document.getElementById('msg');
+  m.className='msg '+type;
+  m.textContent=text;
+}
+
+document.getElementById('input').addEventListener('keydown',e=>{
+  if(e.key==='Enter')submit();
+});
+
+update();
+</script>
+</body>
+</html>

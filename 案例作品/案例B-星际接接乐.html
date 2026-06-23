@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>案例B · 星际接接乐 | AI创造营</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;
+  background:radial-gradient(ellipse at center,#1a0033 0%,#000 100%);
+  font-family:"Microsoft YaHei",system-ui,sans-serif;
+  color:#fff;display:flex;flex-direction:column;align-items:center;
+  padding:16px;overflow:hidden;
+}
+h1{
+  font-size:clamp(24px,4.5vw,36px);font-weight:900;margin-bottom:4px;
+  background:linear-gradient(135deg,#667eea,#f093fb);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.subtitle{color:#888;font-size:12px;letter-spacing:2px;margin-bottom:12px}
+.hud{
+  display:flex;gap:16px;margin-bottom:12px;
+}
+.hud-item{
+  background:rgba(102,126,234,.15);border:1px solid rgba(102,126,234,.3);
+  padding:8px 18px;border-radius:8px;font-size:14px;
+}
+.hud-item span{color:#ffd700;font-weight:900;font-size:18px;margin-left:6px}
+canvas{
+  background:linear-gradient(180deg,#0a0024 0%,#1a0044 100%);
+  border:2px solid rgba(102,126,234,.4);
+  border-radius:12px;box-shadow:0 0 40px rgba(102,126,234,.3);
+  max-width:100%;height:auto;
+  touch-action:none;
+}
+.controls{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+button{
+  padding:10px 22px;border:none;border-radius:8px;cursor:pointer;
+  font-size:14px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  transition:transform .2s;
+}
+button:hover{transform:translateY(-2px)}
+.hint{margin-top:10px;font-size:12px;color:#888;text-align:center}
+.over{
+  position:fixed;inset:0;background:rgba(0,0,0,.9);
+  display:none;align-items:center;justify-content:center;flex-direction:column;z-index:99;
+}
+.over.show{display:flex}
+.over h2{font-size:42px;color:#ff6b9d;margin-bottom:12px}
+.over p{margin-bottom:6px;color:#ccc}
+.over .big{font-size:32px;color:#ffd700;font-weight:900;margin:8px 0 20px}
+.footer{margin-top:18px;font-size:11px;color:#444;text-align:center;letter-spacing:1px}
+.footer a{color:#ffd700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<h1>🚀 星际接接乐</h1>
+<p class="subtitle">AI创造营 · 案例B · 动作冒险赛道</p>
+
+<div class="hud">
+  <div class="hud-item">⭐分数<span id="score">0</span></div>
+  <div class="hud-item">❤️生命<span id="life">3</span></div>
+  <div class="hud-item">🚀关卡<span id="level">1</span></div>
+</div>
+
+<canvas id="game" width="400" height="500"></canvas>
+
+<p class="hint">⌨️ 左右键 或 拖动飞船 · 接星星 +10 · 躲陨石 -1命</p>
+
+<div class="controls">
+  <button onclick="start()">🔄 重新开始</button>
+</div>
+
+<div class="footer">
+  AI创造营案例 · 单文件 HTML5 Canvas + 键盘/触屏控制<br>
+  <a href="index.html">← 返回案例列表</a>
+</div>
+
+<div class="over" id="over">
+  <h2>💥 游戏结束</h2>
+  <p>最终分数</p>
+  <div class="big" id="final">0</div>
+  <button onclick="document.getElementById('over').classList.remove('show');start()">再来一次</button>
+</div>
+
+<script>
+const cv=document.getElementById('game'),ctx=cv.getContext('2d');
+let W=cv.width,H=cv.height;
+let ship,items,score,life,level,running,keys={};
+
+function reset(){
+  ship={x:W/2-20,y:H-60,w:40,h:40,speed:6};
+  items=[];score=0;life=3;level=1;running=true;
+  update();update();
+}
+
+function spawn(){
+  const isStar=Math.random()<0.7-level*0.05;
+  items.push({
+    x:Math.random()*(W-30)+15,y:-20,
+    r:isStar?12:14,
+    type:isStar?'star':'rock',
+    vy:2+level*0.5+Math.random()*1.5,
+    rot:0
+  });
+}
+
+function update(){
+  if(!running)return;
+  if(keys.left)ship.x-=ship.speed;
+  if(keys.right)ship.x+=ship.speed;
+  ship.x=Math.max(0,Math.min(W-ship.w,ship.x));
+
+  if(Math.random()<0.03+level*0.005)spawn();
+
+  ctx.fillStyle='rgba(10,0,36,0.25)';
+  ctx.fillRect(0,0,W,H);
+
+  // stars background
+  for(let i=0;i<40;i++){
+    const x=(i*73+Date.now()/30)%W;
+    const y=(i*127+Date.now()/20)%H;
+    ctx.fillStyle='rgba(255,255,255,'+(0.3+Math.sin(i)*0.2)+')';
+    ctx.fillRect(x,y,1.5,1.5);
+  }
+
+  // items
+  items.forEach(it=>{
+    it.y+=it.vy;it.rot+=0.05;
+    ctx.save();
+    ctx.translate(it.x,it.y);
+    ctx.rotate(it.rot);
+    if(it.type==='star'){
+      ctx.fillStyle='#ffd700';
+      ctx.shadowColor='#ffd700';ctx.shadowBlur=15;
+      drawStar(0,0,5,it.r,it.r/2);
+    }else{
+      ctx.fillStyle='#8B4513';
+      ctx.shadowColor='#ff6b00';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(0,0,it.r,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#5a2c0a';
+      ctx.beginPath();ctx.arc(-3,-3,it.r/3,0,Math.PI*2);ctx.fill();
+    }
+    ctx.restore();
+  });
+
+  // collisions
+  items=items.filter(it=>{
+    if(it.y>H+30)return false;
+    const dx=(ship.x+ship.w/2)-it.x;
+    const dy=(ship.y+ship.h/2)-it.y;
+    if(Math.abs(dx)<ship.w/2+it.r&&Math.abs(dy)<ship.h/2+it.r){
+      if(it.type==='star'){
+        score+=10;
+        if(score>0&&score%100===0)level++;
+      }else{
+        life--;
+        if(life<=0)gameOver();
+      }
+      return false;
+    }
+    return true;
+  });
+
+  // ship
+  ctx.save();
+  ctx.translate(ship.x+ship.w/2,ship.y+ship.h/2);
+  ctx.shadowColor='#667eea';ctx.shadowBlur=20;
+  ctx.fillStyle='#667eea';
+  ctx.beginPath();
+  ctx.moveTo(0,-ship.h/2);
+  ctx.lineTo(ship.w/2,ship.h/2);
+  ctx.lineTo(0,ship.h/3);
+  ctx.lineTo(-ship.w/2,ship.h/2);
+  ctx.closePath();ctx.fill();
+  ctx.fillStyle='#f093fb';
+  ctx.beginPath();ctx.arc(0,-2,5,0,Math.PI*2);ctx.fill();
+  // flame
+  ctx.fillStyle='rgba(255,150,50,'+ (0.5+Math.random()*0.5)+')';
+  ctx.beginPath();
+  ctx.moveTo(-8,ship.h/2);ctx.lineTo(0,ship.h/2+15+Math.random()*5);ctx.lineTo(8,ship.h/2);ctx.closePath();ctx.fill();
+  ctx.restore();
+
+  document.getElementById('score').textContent=score;
+  document.getElementById('life').textContent=life;
+  document.getElementById('level').textContent=level;
+
+  requestAnimationFrame(update);
+}
+
+function drawStar(cx,cy,spikes,outer,inner){
+  let rot=Math.PI/2*3;const step=Math.PI/spikes;
+  ctx.beginPath();ctx.moveTo(cx,cy-outer);
+  for(let i=0;i<spikes;i++){
+    ctx.lineTo(cx+Math.cos(rot)*outer,cy+Math.sin(rot)*outer);rot+=step;
+    ctx.lineTo(cx+Math.cos(rot)*inner,cy+Math.sin(rot)*inner);rot+=step;
+  }
+  ctx.closePath();ctx.fill();
+}
+
+function gameOver(){
+  running=false;
+  document.getElementById('final').textContent=score;
+  document.getElementById('over').classList.add('show');
+}
+
+function start(){reset()}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;
+  if(e.key==='ArrowRight'||e.key==='d')keys.right=true;
+});
+document.addEventListener('keyup',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;
+  if(e.key==='ArrowRight'||e.key==='d')keys.right=false;
+});
+
+// touch
+let touchX=null;
+cv.addEventListener('touchstart',e=>{e.preventDefault();touchX=e.touches[0].clientX});
+cv.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  const rect=cv.getBoundingClientRect();
+  const x=e.touches[0].clientX-rect.left;
+  ship.x=x*W/rect.width-ship.w/2;
+});
+
+start();
+</script>
+</body>
+</html>

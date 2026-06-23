@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI创造营 · 4日PBL游戏创作营</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0f1e;--card:#141a2e;--accent:#ff6b35;--accent2:#f7931e;
+  --gold:#ffd700;--purple:#764ba2;--blue:#667eea;
+  --text:#eee;--text2:#9aa0b4;
+}
+body{
+  min-height:100vh;background:var(--bg);color:var(--text);
+  font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 15% 20%,rgba(255,107,53,.12),transparent 50%),
+    radial-gradient(ellipse at 85% 30%,rgba(102,126,234,.15),transparent 50%),
+    radial-gradient(ellipse at 50% 100%,rgba(255,215,0,.08),transparent 50%);
+}
+.particle{
+  position:fixed;border-radius:50%;pointer-events:none;opacity:.3;z-index:0;
+  animation:drift linear infinite;
+}
+@keyframes drift{
+  0%{transform:translateY(100vh)}100%{transform:translateY(-10vh)}
+}
+
+/* Header */
+.hero{
+  position:relative;z-index:1;text-align:center;
+  padding:80px 20px 50px;
+}
+.logo{
+  font-size:13px;letter-spacing:8px;color:var(--gold);opacity:.85;
+  margin-bottom:18px;
+}
+.title{
+  font-size:clamp(36px,7vw,72px);font-weight:900;line-height:1.15;
+  background:linear-gradient(135deg,#ffd700,#ff6b35,#764ba2,#667eea);
+  background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:gradShift 8s ease infinite;
+  margin-bottom:16px;
+}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.subtitle{
+  font-size:clamp(15px,2vw,18px);color:var(--text2);
+  letter-spacing:3px;max-width:720px;margin:0 auto;line-height:1.7;
+}
+.divider{
+  width:100px;height:3px;margin:30px auto 0;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.cta-row{
+  margin-top:32px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+}
+.cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 32px;border-radius:30px;font-weight:700;font-size:15px;
+  text-decoration:none;transition:all .3s;
+}
+.cta-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  box-shadow:0 8px 24px rgba(255,107,53,.4);
+}
+.cta-primary:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(255,107,53,.5)}
+.cta-secondary{
+  background:rgba(255,255,255,.06);color:var(--text);
+  border:1px solid rgba(255,255,255,.15);
+}
+.cta-secondary:hover{background:rgba(255,255,255,.1)}
+
+/* Section */
+section{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:60px 20px}
+.section-title{
+  text-align:center;font-size:clamp(24px,3.5vw,36px);font-weight:900;
+  margin-bottom:14px;
+}
+.section-sub{
+  text-align:center;color:var(--text2);font-size:14px;
+  letter-spacing:2px;margin-bottom:40px;
+}
+
+/* Day Timeline */
+.timeline{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;
+}
+.day-card{
+  background:linear-gradient(135deg,rgba(20,26,46,.9),rgba(15,52,96,.4));
+  border:1px solid rgba(255,255,255,.08);border-radius:18px;
+  padding:28px 24px;position:relative;overflow:hidden;
+  transition:transform .3s,border-color .3s;
+}
+.day-card:hover{transform:translateY(-4px);border-color:rgba(255,215,0,.3)}
+.day-num{
+  display:inline-block;padding:4px 14px;border-radius:20px;
+  font-size:12px;font-weight:900;letter-spacing:2px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  margin-bottom:14px;
+}
+.day-card.d1 .day-num{background:linear-gradient(135deg,#ff6b35,#f7931e)}
+.day-card.d2 .day-num{background:linear-gradient(135deg,#667eea,#764ba2)}
+.day-card.d3 .day-num{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+.day-card.d4 .day-num{background:linear-gradient(135deg,#daa520,#ffd700);color:#1a0a05}
+.day-card h3{font-size:20px;font-weight:900;margin-bottom:10px}
+.day-card p{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:12px}
+.day-card ul{list-style:none;font-size:13px;color:var(--text2)}
+.day-card li{padding:4px 0;padding-left:18px;position:relative}
+.day-card li::before{content:'▸';position:absolute;left:0;color:var(--gold)}
+
+/* Cases */
+.cases{display:flex;flex-direction:column;gap:24px}
+.case{
+  display:grid;grid-template-columns:120px 1fr auto;gap:24px;align-items:center;
+  padding:28px 32px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(20,26,46,.9),rgba(15,52,96,.4));
+  border:1px solid rgba(255,255,255,.08);
+  text-decoration:none;color:inherit;
+  transition:all .4s cubic-bezier(.2,.8,.2,1);
+}
+.case:hover{
+  transform:translateY(-4px);
+  border-color:rgba(255,215,0,.3);
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+.case-badge{
+  width:100px;height:100px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:48px;flex-shrink:0;
+  box-shadow:0 8px 20px rgba(0,0,0,.3);
+}
+.case-a .case-badge{background:linear-gradient(135deg,#ff9a56,#e94560)}
+.case-b .case-badge{background:linear-gradient(135deg,#667eea,#764ba2)}
+.case-c .case-badge{background:linear-gradient(135deg,#daa520,#b8860b)}
+.case-info h3{font-size:22px;font-weight:900;margin-bottom:8px}
+.case-info p{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:10px}
+.case-tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:var(--text2);
+}
+.case-cta{
+  padding:14px 28px;border-radius:12px;font-weight:700;color:#fff;
+  flex-shrink:0;white-space:nowrap;
+}
+.case-a .case-cta{background:linear-gradient(135deg,#ff9a56,#e94560)}
+.case-b .case-cta{background:linear-gradient(135deg,#667eea,#764ba2)}
+.case-c .case-cta{background:linear-gradient(135deg,#daa520,#b8860b);color:#1a0a05}
+
+/* Resources */
+.res-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;
+}
+.res-card{
+  background:rgba(20,26,46,.7);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:24px;text-decoration:none;color:inherit;
+  transition:all .3s;
+}
+.res-card:hover{border-color:rgba(255,215,0,.4);background:rgba(20,26,46,.95)}
+.res-card .icon{font-size:32px;margin-bottom:10px}
+.res-card h4{font-size:16px;font-weight:900;margin-bottom:8px}
+.res-card p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Footer */
+.footer{
+  text-align:center;padding:60px 20px 40px;
+  font-size:13px;color:#555;letter-spacing:1px;position:relative;z-index:1;
+}
+.footer a{color:var(--gold);text-decoration:none}
+
+@media(max-width:700px){
+  .case{grid-template-columns:1fr;text-align:center}
+  .case-badge{margin:0 auto;width:80px;height:80px;font-size:36px}
+  .case-tags{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="logo">AI CREATOR CAMP · 4 DAYS</div>
+  <h1 class="title">AI游戏4日创造营</h1>
+  <p class="subtitle">用 AI 做出一款让同学"停不下来"的小游戏 · PBL项目式学习 + AI协作双引擎</p>
+  <div class="divider"></div>
+  <div class="cta-row">
+    <a class="cta cta-primary" href="案例作品/index.html">🎮 体验示范作品</a>
+    <a class="cta cta-secondary" href="#days">📅 看4日课程</a>
+    <a class="cta cta-secondary" href="#resources">📚 资料下载</a>
+  </div>
+</header>
+
+<section id="days">
+  <h2 class="section-title">4日营节奏</h2>
+  <p class="section-sub">每天一个核心任务 · 4天交付一款完整游戏</p>
+  <div class="timeline">
+    <div class="day-card d1">
+      <span class="day-num">DAY 01</span>
+      <h3>🌱 启动·探索</h3>
+      <p>认识AI能做什么，找到自己的游戏创意</p>
+      <ul>
+        <li>AI破冰：第一次让AI写代码</li>
+        <li>好游戏拆解：找上瘾点</li>
+        <li>创意头脑风暴 X+Y公式</li>
+        <li>产出：《创意一页纸》</li>
+      </ul>
+    </div>
+    <div class="day-card d2">
+      <span class="day-num">DAY 02</span>
+      <h3>⚡ 设计·开发</h3>
+      <p>把纸上创意变成浏览器里能玩的原型</p>
+      <ul>
+        <li>把游戏拆成5个小功能</li>
+        <li>用AI生成第一版代码</li>
+        <li>调Bug大作战</li>
+        <li>产出：v0.1 可玩原型</li>
+      </ul>
+    </div>
+    <div class="day-card d3">
+      <span class="day-num">DAY 03</span>
+      <h3>🔥 测试·迭代</h3>
+      <p>玩家测试 → 反馈 → 改进 → 美化</p>
+      <ul>
+        <li>互玩30分钟收集反馈</li>
+        <li>关卡/难度系统设计</li>
+        <li>UI美化与音效</li>
+        <li>产出：v1.0 + 30秒Demo</li>
+      </ul>
+    </div>
+    <div class="day-card d4">
+      <span class="day-num">DAY 04</span>
+      <h3>🏆 路演·答辩</h3>
+      <p>3分钟讲好你的故事，让世界看到</p>
+      <ul>
+        <li>排练 + 现场路演</li>
+        <li>评委问答 + 学生互评</li>
+        <li>颁奖 + 项目复盘</li>
+        <li>产出：PPT + 复盘表</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="cases">
+  <h2 class="section-title">示范案例作品</h2>
+  <p class="section-sub">3个赛道 · 学生不用看代码也能玩 · 老师可作为讲解样板</p>
+  <div class="cases">
+    <a class="case case-a" href="案例作品/案例A-记忆翻翻乐.html">
+      <div class="case-badge">🧠</div>
+      <div class="case-info">
+        <h3>案例A · 记忆翻翻乐</h3>
+        <p>4×4翻牌配对，最少步数挑战记忆极限。完整功能：计时、计步、动画、通关界面，是"麻雀虽小五脏俱全"的入门示范。</p>
+        <div class="case-tags">
+          <span class="tag">休闲解谜赛道</span>
+          <span class="tag">难度⭐⭐</span>
+          <span class="tag">约200行代码</span>
+        </div>
+      </div>
+      <div class="case-cta">立即试玩 →</div>
+    </a>
+
+    <a class="case case-b" href="案例作品/案例B-星际接接乐.html">
+      <div class="case-badge">🚀</div>
+      <div class="case-info">
+        <h3>案例B · 星际接接乐</h3>
+        <p>Canvas动作游戏，接星星躲陨石，难度递增。展示如何用AI生成游戏循环、碰撞检测、键盘触屏双控制——动作类游戏标准范式。</p>
+        <div class="case-tags">
+          <span class="tag">动作冒险赛道</span>
+          <span class="tag">难度⭐⭐⭐</span>
+          <span class="tag">Canvas绘制</span>
+        </div>
+      </div>
+      <div class="case-cta">立即试玩 →</div>
+    </a>
+
+    <a class="case case-c" href="案例作品/案例C-成语接龙王.html">
+      <div class="case-badge">📜</div>
+      <div class="case-info">
+        <h3>案例C · 成语接龙王</h3>
+        <p>30秒倒计时成语接龙，连击加分加时。展示如何用AI做"知识+游戏"融合——把学科内容（语文/数学/英文都可以）做成上瘾的小游戏。</p>
+        <div class="case-tags">
+          <span class="tag">知识策略赛道</span>
+          <span class="tag">难度⭐⭐</span>
+          <span class="tag">学科融合</span>
+        </div>
+      </div>
+      <div class="case-cta">立即试玩 →</div>
+    </a>
+  </div>
+</section>
+
+<section id="resources">
+  <h2 class="section-title">课程资料</h2>
+  <p class="section-sub">学生用 + 教师用 + 项目模板 · 拿来就能上</p>
+  <div class="res-grid">
+    <a class="res-card" href="https://github.com/Frog1205/ai-creator-camp">
+      <div class="icon">📦</div>
+      <h4>完整资料包</h4>
+      <p>GitHub仓库 · 4日学生手册、教师教案、评价量规、项目模板一键下载</p>
+    </a>
+    <a class="res-card" href="https://github.com/Frog1205/ai-creator-camp/tree/main/学生用">
+      <div class="icon">📘</div>
+      <h4>学生用手册（Day1–4）</h4>
+      <p>每日任务卡、提示词模板、复盘问题、自评清单</p>
+    </a>
+    <a class="res-card" href="https://github.com/Frog1205/ai-creator-camp/tree/main/教师用">
+      <div class="icon">📕</div>
+      <h4>教师教案 + 评价量规</h4>
+      <p>引导话术、易错点、风险预案、PBL-AI 4维度评价</p>
+    </a>
+    <a class="res-card" href="https://github.com/Frog1205/ai-creator-camp/tree/main/项目模板">
+      <div class="icon">📋</div>
+      <h4>项目模板</h4>
+      <p>创意一页纸、提示词工程小抄、路演PPT结构、项目复盘表</p>
+    </a>
+  </div>
+</section>
+
+<footer class="footer">
+  AI创造营 · PBL-AI项目式学习课程 · 2026<br>
+  代码开源 · MIT License · <a href="https://github.com/Frog1205/ai-creator-camp">GitHub</a>
+</footer>
+
+<script>
+(function(){
+  const colors=['#ffd700','#ff6b35','#667eea','#764ba2','#27ae60'];
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const size=2+Math.random()*4;
+    p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${15+Math.random()*20}s;animation-delay:${-Math.random()*20}s;`;
+    document.body.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
